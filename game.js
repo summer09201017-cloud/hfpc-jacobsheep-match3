@@ -6,7 +6,7 @@
 //
 // 玩法:羊群混在一起了!點兩隻相鄰的羊交換;排成一排 3 隻「同紋」(有點的/有紋的/黑的…)
 //   =「歸入羊圈」(圈欄一格格滿);新的羊從草場走來補位。連 4+ 出「剝皮的枝子」(創 30:37),
-//   點一下整排整列一起歸圈;蝴蝶偶爾飛來逗羊擋路,一會兒自己飛走。
+//   點一下整排整列＋旁邊一圈一起歸圈;蝴蝶偶爾飛來逗羊擋路,一會兒自己飛走。
 // ★ 神學守法:①歸圈不是消滅;②信息=「神使人昌盛」——連雅各都承認「神把你們父親的牲畜
 //   奪來賜給我了」(創 31:9),不是剝皮枝子的把戲,是神在拉班十次改工價的虧待裡看顧他;
 //   ③永不會輸;④綿羊山羊「分類審判」紅線不涉及——這裡分的是「紋路歸圈」,不是誰被丟棄。
@@ -41,7 +41,7 @@
     title: '🐑 雅各的斑點羊',
     ref: '創世記 30:32,43',
     intro1: '「把綿羊中凡有點的、有斑的，和黑色的……都挑出來；將來這一等的就算我的工價。」(創 30:32)',
-    how: '羊群混在一起了!點一隻、再點旁邊的一隻交換位置;排成一排 3 隻「同紋」的羊就「歸入羊圈」。這一關「斜的一排也算」——像有點的、有斑的都算工價(創 30:32);歸圈前牧人會先搭上剝皮的枝子數一數、亮一下,再一起歸圈,慢慢看不用急。連出 4 隻以上會出現枝子方塊,點一下整排整列一起歸圈!湊滿目標欄數就過關,還有下一關等著你。放心慢慢分——沒有步數限制。',
+    how: '羊群混在一起了!點一隻、再點旁邊的一隻交換位置;排成一排 3 隻「同紋」的羊就「歸入羊圈」。這一關「斜的一排也算」——像有點的、有斑的都算工價(創 30:32);歸圈前牧人會先搭上剝皮的枝子數一數、亮一下,再一起歸圈,慢慢看不用急。連出 4 隻以上會出現枝子方塊,點一下整排整列＋旁邊一圈一起歸圈!湊滿目標欄數就過關,還有下一關等著你。放心慢慢分——沒有步數限制。',
     pick: '草場上的羊等著數算。選一群:',
     hud: (p, goal) => `🐑 已歸圈 ${p}/${goal} 欄`,
     gather: '同紋歸圈!',
@@ -55,7 +55,7 @@
     noswap: '這樣排不成一排——輕輕放回去',
     crowCome: '蝴蝶飛來逗羊了…',
     crowGo: '蝴蝶飛走了',
-    rainbowBorn: '剝皮的枝子!點它,整排整列歸圈',
+    rainbowBorn: '剝皮的枝子!點它,整排整列＋旁邊一圈歸圈',
     rainbowGo: '一大群一起歸圈了!',
     closeLine: '於是雅各極其發大，得了許多的羊群、僕婢、駱駝，和驢。(創 30:43)',
     winTitle: '🎉 羊群數算清楚了!',
@@ -89,6 +89,8 @@
       this.flyers = [] // 上船中的動物
       this.birds = [] // 飛走中的烏鴉
       this.pops = [] // 收取瞬間的 Q 彈圈
+      this.shocks = [] // 💥 爆收衝擊波光環
+      this.sparks = [] // 💥 爆收煙火
       this.confetti = []
       this.shakeBack = null
       this.toasts = []
@@ -186,7 +188,7 @@
       this.lock = 0.5
       this.collected = 0
       this.pending = null
-      this.flyers = []; this.birds = []; this.pops = []; this.toasts = []; this.confetti = []
+      this.flyers = []; this.birds = []; this.pops = []; this.toasts = []; this.confetti = []; this.shocks = []; this.sparks = []
       this.crowT = 14
       this.blessPlayed = false
       this.state = 'play'
@@ -247,7 +249,7 @@
     _hasMove() {
       const n = this.cfg.size
       const g = this.grid
-      // 場上有彩虹=永遠有一手(點它就整排整列上船)
+      // 場上有彩虹=永遠有一手(點它就整排整列＋旁邊一圈上船)
       for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (g[r][c].kind === 'rainbow') return true
       const trySwap = (r1, c1, r2, c2) => {
         const a = g[r1][c1].kind, b = g[r2][c2].kind
@@ -346,7 +348,7 @@
       return -1
     }
 
-    // 點彩虹:整排整列一起上船(恩典多給;烏鴉被嚇飛,不算數也不扣分)
+    // 點彩虹:整排整列＋旁邊一圈一起上船(恩典多給;烏鴉被嚇飛,不算數也不扣分)
     _rainbowClear(r, c) {
       const g = this._geo()
       const n = this.cfg.size
@@ -362,6 +364,21 @@
       }
       for (let cc = 0; cc < n; cc++) take(r, cc)
       for (let rr = 0; rr < n; rr++) if (rr !== r) take(rr, c)
+      // 💥 爆收範圍加大(07-24,連鏈家族同款精神):整排整列＋旁邊一圈之外,周圍一圈也一起收
+      for (const [dr, dc] of [[-1, -1], [-1, 1], [1, -1], [1, 1]]) {
+        const rr = r + dr, cc = c + dc
+        if (rr >= 0 && cc >= 0 && rr < n && cc < n) take(rr, cc)
+      }
+      // 💥 擴散衝擊波光環(範圍看得見)+煙火 40 顆
+      const pc0 = this._cellXY(r, c, g)
+      this.shocks.push({ x: pc0.x, y: pc0.y, t: 0 })
+      if (!this.reduced) {
+        const FW = ['#ffd54a', '#ff8a5a', '#8ae08a', '#7ab8ff', '#e08ae0']
+        for (let i = 0; i < 40; i++) {
+          const a = Math.random() * Math.PI * 2, v = 90 + Math.random() * 220
+          this.sparks.push({ x: pc0.x, y: pc0.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 60, t: 0, color: FW[i % 5] })
+        }
+      }
       this.collected += count
       this.rainbowFxT = 1.6
       this.toasts.push({ text: T.rainbowGo, t: this._t })
@@ -459,6 +476,10 @@
       this.birds = this.birds.filter((b) => b.t < 1.6)
       for (const p of this.pops) p.t += dt * 3
       this.pops = this.pops.filter((p) => p.t < 1)
+      for (const sfx of this.shocks) sfx.t += dt * 1.8
+      this.shocks = this.shocks.filter((sfx) => sfx.t < 1)
+      for (const sp of this.sparks) { sp.t += dt; sp.x += sp.vx * dt; sp.y += sp.vy * dt; sp.vy += 260 * dt }
+      this.sparks = this.sparks.filter((sp) => sp.t < 0.9)
       if (this.rainbowFxT > 0) this.rainbowFxT -= dt
       for (const c of this.confetti) { c.y += c.vy * dt; c.x += c.vx * dt; c.rot += c.vr * dt }
       this.confetti = this.confetti.filter((c) => c.y < VH + 20)
@@ -627,6 +648,7 @@
       ctx.save()
       ctx.setTransform(s, 0, 0, s, ox, oy)
       this._clouds()
+      this._waterside()
       if (this.state === 'intro') { this._drawIntro(); this._fsBtn(); ctx.restore(); return }
       if (this.state === 'map') { this._drawMap(); this._fsBtn(); ctx.restore(); return }
       const g = this._geo()
@@ -694,6 +716,22 @@
         ctx.beginPath(); ctx.arc(p.x, p.y, 10 + p.t * 26, 0, 7); ctx.stroke()
         ctx.globalAlpha = 1
       }
+      // 💥 爆收衝擊波光環(雙圈擴散)+煙火
+      for (const sfx of this.shocks) {
+        const k = sfx.t
+        ctx.globalAlpha = (1 - k) * 0.9
+        ctx.strokeStyle = '#ffd54a'; ctx.lineWidth = 6 * (1 - k) + 2
+        ctx.beginPath(); ctx.arc(sfx.x, sfx.y, 24 + k * 300, 0, 7); ctx.stroke()
+        ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 3
+        ctx.beginPath(); ctx.arc(sfx.x, sfx.y, 12 + k * 210, 0, 7); ctx.stroke()
+        ctx.globalAlpha = 1
+      }
+      for (const sp of this.sparks) {
+        ctx.globalAlpha = Math.max(0, 1 - sp.t / 0.9)
+        ctx.fillStyle = sp.color
+        ctx.beginPath(); ctx.arc(sp.x, sp.y, 3.2, 0, 7); ctx.fill()
+        ctx.globalAlpha = 1
+      }
       // 上船中的動物(飛行途中縮小一點)
       for (const f of this.flyers) this._tsum(ctx, f.x, f.y, 17 * (1 - f.t * 0.25), f.kind, 0.1)
       // 飛走的烏鴉
@@ -742,6 +780,34 @@
       }
       ctx.restore()
       if (this.state === 'win') this._drawWinCard()
+    }
+
+    // 💧 可安歇的水邊(詩 23:2「領我在可安歇的水邊」;底部緩流+波光+蘆葦,07-24 使用者點名)
+    _waterside() {
+      const { ctx } = this
+      ctx.save()
+      const wg = ctx.createLinearGradient(0, 500, 0, VH)
+      wg.addColorStop(0, 'rgba(150,200,230,0.55)')
+      wg.addColorStop(1, 'rgba(110,170,215,0.75)')
+      ctx.fillStyle = wg
+      ctx.beginPath()
+      ctx.moveTo(0, 516)
+      for (let x = 0; x <= VW; x += 40) ctx.lineTo(x, 512 + Math.sin(x / 90 + this._t * 0.8) * 4)
+      ctx.lineTo(VW, VH); ctx.lineTo(0, VH); ctx.closePath(); ctx.fill()
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2; ctx.lineCap = 'round' // 波光
+      for (const [bx, by, len] of [[80, 526, 40], [300, 530, 56], [560, 524, 44], [800, 530, 60]]) {
+        const dx2 = Math.sin(this._t * 1.2 + bx) * 6
+        ctx.beginPath(); ctx.moveTo(bx + dx2, by); ctx.lineTo(bx + dx2 + len, by); ctx.stroke()
+      }
+      ctx.lineCap = 'butt'
+      ctx.strokeStyle = '#5a8a4a'; ctx.lineWidth = 3 // 蘆葦
+      for (const [rx, lean] of [[26, -1], [40, 1], [922, -1], [936, 1]]) {
+        const sway = Math.sin(this._t * 1.5 + rx) * 3
+        ctx.beginPath(); ctx.moveTo(rx, 540); ctx.quadraticCurveTo(rx + lean * 6 + sway, 505, rx + lean * 2 + sway, 486); ctx.stroke()
+        ctx.fillStyle = '#7a6a3a'
+        ctx.beginPath(); ctx.ellipse(rx + lean * 2 + sway, 482, 4, 10, 0, 0, 7); ctx.fill()
+      }
+      ctx.restore()
     }
 
     _clouds() {
@@ -913,18 +979,18 @@
       if (kind === 'white') { // 純白羊
         sheepBase('#f6f1e2', '#e0d4ba')
         face()
-      } else if (kind === 'spotted') { // 有點的:白底黑點
-        sheepBase('#f6f1e2', '#e0d4ba')
-        ctx.fillStyle = '#4a4a52'
-        for (const [ux, uy] of [[-0.42, -0.32], [0.35, -0.45], [0.5, 0.3], [-0.5, 0.35], [0.05, 0.52]]) {
-          ctx.beginPath(); ctx.arc(ux * r, uy * r, r * 0.11, 0, 7); ctx.fill()
+      } else if (kind === 'spotted') { // 有點的:白底大黑點+黑耳(07-24 辨識度加大)
+        sheepBase('#f6f1e2', '#4a4a52')
+        ctx.fillStyle = '#33333c'
+        for (const [ux, uy] of [[-0.42, -0.32], [0.35, -0.45], [0.5, 0.3], [-0.5, 0.35], [0.05, 0.52], [0.03, -0.02]]) {
+          ctx.beginPath(); ctx.arc(ux * r, uy * r, r * 0.16, 0, 7); ctx.fill()
         }
         face()
-      } else if (kind === 'striped') { // 有紋的:白底棕紋
-        sheepBase('#f6f1e2', '#e0d4ba')
-        ctx.strokeStyle = '#a8825a'; ctx.lineWidth = Math.max(2, r * 0.11); ctx.lineCap = 'round'
-        for (const a of [-0.45, 0, 0.45]) {
-          ctx.beginPath(); ctx.moveTo(a * r - r * 0.18, -r * 0.45); ctx.quadraticCurveTo(a * r + r * 0.12, 0, a * r - r * 0.1, r * 0.5); ctx.stroke()
+      } else if (kind === 'striped') { // 有紋的:白底深棕粗紋+棕耳(07-24 辨識度加大)
+        sheepBase('#f6f1e2', '#8a6540')
+        ctx.strokeStyle = '#7a5434'; ctx.lineWidth = Math.max(3, r * 0.19); ctx.lineCap = 'round'
+        for (const a of [-0.55, -0.18, 0.18, 0.55]) {
+          ctx.beginPath(); ctx.moveTo(a * r - r * 0.16, -r * 0.5); ctx.quadraticCurveTo(a * r + r * 0.12, 0, a * r - r * 0.1, r * 0.52); ctx.stroke()
         }
         ctx.lineCap = 'butt'
         face()
@@ -948,8 +1014,12 @@
       } else if (kind === 'brown') { // 棕羊
         sheepBase('#c8a06a', '#a8804a')
         face()
-      } else if (kind === 'grey') { // 灰羊
-        sheepBase('#c4c8cc', '#a4a8ac')
+      } else if (kind === 'grey') { // 灰羊:深灰藍+小捲角(07-24 辨識度加大,原色太近白羊)
+        sheepBase('#9aa8b4', '#6a7884')
+        ctx.strokeStyle = '#5a6874'; ctx.lineWidth = Math.max(2.5, r * 0.14); ctx.lineCap = 'round'
+        ctx.beginPath(); ctx.arc(-r * 0.6, -r * 0.52, r * 0.24, Math.PI * 0.7, Math.PI * 1.85); ctx.stroke()
+        ctx.beginPath(); ctx.arc(r * 0.6, -r * 0.52, r * 0.24, Math.PI * 1.15, Math.PI * 2.3); ctx.stroke()
+        ctx.lineCap = 'butt'
         face()
       } else if (kind === 'crow') { // 蝴蝶:飛來逗羊(不嚇孩子的搗蛋鬼)
         ctx.fillStyle = '#f0b040'
