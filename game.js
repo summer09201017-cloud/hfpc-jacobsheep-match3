@@ -15,7 +15,7 @@
   const PAIR = 2 // 每 2 隻=一對(一公一母,創 7:9)
 
   const AGES = {
-    young: { label: '🐣 幼', desc: '6×6・歸圈 20 欄', size: 6, kinds: 4, goal: 20, crow: 0 },
+    young: { label: '🐣 幼', desc: '6×6・歸圈 28 欄', size: 6, kinds: 4, goal: 28, crow: 0 },
     kid: { label: '🙂 童', desc: '7×7・歸圈 32 欄', size: 7, kinds: 5, goal: 32, crow: 2 },
     teen: { label: '🔥 青', desc: '8×8・歸圈 45 欄', size: 8, kinds: 6, goal: 45, crow: 3 },
   }
