@@ -18,9 +18,9 @@
   const PAIR = 2 // 每 2 隻=一對(一公一母,創 7:9)
 
   const AGES = {
-    young: { label: '🐣 幼', desc: '6×6・第1關 32 欄', size: 6, kinds: 4, goal: 32, crow: 0 },
-    kid: { label: '🙂 童', desc: '7×7・第1關 48 欄', size: 7, kinds: 5, goal: 48, crow: 2 },
-    teen: { label: '🔥 青', desc: '8×8・第1關 64 欄', size: 8, kinds: 6, goal: 64, crow: 3 },
+    young: { label: '🐣 幼', desc: '6×6・第1關 40 欄', size: 6, kinds: 4, goal: 40, crow: 0 },
+    kid: { label: '🙂 童', desc: '7×7・第1關 60 欄', size: 7, kinds: 5, goal: 60, crow: 2 },
+    teen: { label: '🔥 青', desc: '8×8・第1關 80 欄', size: 8, kinds: 6, goal: 80, crow: 3 },
   }
 
   // 關卡制(tsum 家族 07-22 三包同款):進度與星星依年齡檔存本機
@@ -299,7 +299,7 @@
         }
         for (let r = write; r >= 0; r--) {
           let k = this._rand(), tries = 0
-          while (this._wouldMatchAt(r, c, k) && ++tries <= 2) k = this._rand()
+          while (this._wouldMatchAt(r, c, k) && ++tries <= 4) k = this._rand() // 斜線款 07-24 加難:重擲 2→4,少一點白撿的雪崩
           this.grid[r][c].kind = k
           this.grid[r][c].crowLife = 0
           this.grid[r][c].dy = -(write + 1) * g.D - 60
@@ -933,30 +933,46 @@
         ctx.lineCap = 'butt'
       }
       const face = (fy = 0) => {
-        const er = r * 0.14
-        ctx.fillStyle = '#fff' // 眼白
-        ctx.beginPath(); ctx.arc(-r * 0.32, fy - r * 0.1, er * 1.55, 0, 7); ctx.fill()
-        ctx.beginPath(); ctx.arc(r * 0.32, fy - r * 0.1, er * 1.55, 0, 7); ctx.fill()
-        ctx.fillStyle = '#2c2416' // 瞳
-        ctx.beginPath(); ctx.arc(-r * 0.3, fy - r * 0.08, er, 0, 7); ctx.fill()
-        ctx.beginPath(); ctx.arc(r * 0.34, fy - r * 0.08, er, 0, 7); ctx.fill()
-        ctx.fillStyle = '#fff' // 水潤雙高光
-        ctx.beginPath(); ctx.arc(-r * 0.34, fy - r * 0.14, er * 0.42, 0, 7); ctx.fill()
-        ctx.beginPath(); ctx.arc(r * 0.3, fy - r * 0.14, er * 0.42, 0, 7); ctx.fill()
-        ctx.fillStyle = 'rgba(255,255,255,0.7)'
-        ctx.beginPath(); ctx.arc(-r * 0.26, fy - r * 0.03, er * 0.2, 0, 7); ctx.fill()
-        ctx.beginPath(); ctx.arc(r * 0.38, fy - r * 0.03, er * 0.2, 0, 7); ctx.fill()
-        const bl = ctx.createRadialGradient(-r * 0.52, fy + r * 0.18, 0, -r * 0.52, fy + r * 0.18, er * 1.5) // 腮紅(柔邊)
+        // ★ 07-24 v3:大眼睛+眨眼(依位置錯開,絕不全場同步;reduced-motion 不眨)+興奮 D 型嘴
+        const er = r * 0.18
+        const blink = !this.reduced && ((this._t + x * 7.13 + y * 3.71) % 4.6) < 0.12
+        if (blink) {
+          ctx.strokeStyle = '#2c2416'; ctx.lineWidth = Math.max(1.6, r * 0.07); ctx.lineCap = 'round'
+          ctx.beginPath(); ctx.moveTo(-r * 0.44, fy - r * 0.08); ctx.lineTo(-r * 0.16, fy - r * 0.08); ctx.stroke()
+          ctx.beginPath(); ctx.moveTo(r * 0.2, fy - r * 0.08); ctx.lineTo(r * 0.48, fy - r * 0.08); ctx.stroke()
+          ctx.lineCap = 'butt'
+        } else {
+          ctx.fillStyle = '#fff'
+          ctx.beginPath(); ctx.arc(-r * 0.32, fy - r * 0.1, er * 1.45, 0, 7); ctx.fill()
+          ctx.beginPath(); ctx.arc(r * 0.32, fy - r * 0.1, er * 1.45, 0, 7); ctx.fill()
+          ctx.fillStyle = '#2c2416'
+          ctx.beginPath(); ctx.arc(-r * 0.3, fy - r * 0.08, er, 0, 7); ctx.fill()
+          ctx.beginPath(); ctx.arc(r * 0.34, fy - r * 0.08, er, 0, 7); ctx.fill()
+          ctx.fillStyle = '#fff'
+          ctx.beginPath(); ctx.arc(-r * 0.35, fy - r * 0.15, er * 0.42, 0, 7); ctx.fill()
+          ctx.beginPath(); ctx.arc(r * 0.29, fy - r * 0.15, er * 0.42, 0, 7); ctx.fill()
+          ctx.fillStyle = 'rgba(255,255,255,0.7)'
+          ctx.beginPath(); ctx.arc(-r * 0.25, fy - r * 0.02, er * 0.2, 0, 7); ctx.fill()
+          ctx.beginPath(); ctx.arc(r * 0.39, fy - r * 0.02, er * 0.2, 0, 7); ctx.fill()
+        }
+        const bl = ctx.createRadialGradient(-r * 0.54, fy + r * 0.22, 0, -r * 0.54, fy + r * 0.22, er * 1.25)
         bl.addColorStop(0, 'rgba(245,130,130,0.5)'); bl.addColorStop(1, 'rgba(245,130,130,0)')
         ctx.fillStyle = bl
-        ctx.beginPath(); ctx.arc(-r * 0.52, fy + r * 0.18, er * 1.5, 0, 7); ctx.fill()
-        const br = ctx.createRadialGradient(r * 0.52, fy + r * 0.18, 0, r * 0.52, fy + r * 0.18, er * 1.5)
+        ctx.beginPath(); ctx.arc(-r * 0.54, fy + r * 0.22, er * 1.25, 0, 7); ctx.fill()
+        const br = ctx.createRadialGradient(r * 0.54, fy + r * 0.22, 0, r * 0.54, fy + r * 0.22, er * 1.25)
         br.addColorStop(0, 'rgba(245,130,130,0.5)'); br.addColorStop(1, 'rgba(245,130,130,0)')
         ctx.fillStyle = br
-        ctx.beginPath(); ctx.arc(r * 0.52, fy + r * 0.18, er * 1.5, 0, 7); ctx.fill()
-        ctx.strokeStyle = '#4a3420'; ctx.lineWidth = Math.max(1.2, r * 0.055); ctx.lineCap = 'round' // 微笑
-        ctx.beginPath(); ctx.arc(0, fy + r * 0.12, r * 0.18, 0.25 * Math.PI, 0.75 * Math.PI); ctx.stroke()
-        ctx.lineCap = 'butt'
+        ctx.beginPath(); ctx.arc(r * 0.54, fy + r * 0.22, er * 1.25, 0, 7); ctx.fill()
+        if (k > 0.05) { // 興奮(收取/落地 Q 彈)=開心 D 型嘴+小舌頭
+          ctx.fillStyle = '#4a3420'
+          ctx.beginPath(); ctx.arc(0, fy + r * 0.14, r * 0.2, 0, Math.PI); ctx.closePath(); ctx.fill()
+          ctx.fillStyle = '#e89090'
+          ctx.beginPath(); ctx.arc(0, fy + r * 0.3, r * 0.11, Math.PI, 0); ctx.fill()
+        } else { // 平時=加深加寬的微笑
+          ctx.strokeStyle = '#4a3420'; ctx.lineWidth = Math.max(1.6, r * 0.065); ctx.lineCap = 'round'
+          ctx.beginPath(); ctx.arc(0, fy + r * 0.08, r * 0.26, 0.18 * Math.PI, 0.82 * Math.PI); ctx.stroke()
+          ctx.lineCap = 'butt'
+        }
       }
       const sheepBase = (wool, faceCol) => {
         body(wool, shade(wool))
