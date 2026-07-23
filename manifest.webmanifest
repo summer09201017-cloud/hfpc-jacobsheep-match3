@@ -1,0 +1,13 @@
+{
+  "name": "雅各的斑點羊",
+  "short_name": "斑點羊",
+  "description": "點兩隻相鄰的羊交換,排成一排 3 隻同紋就歸入羊圈!斑點羊數算清楚——神使人昌盛(創世記 30,和合本)",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#a8c878",
+  "theme_color": "#689838",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
