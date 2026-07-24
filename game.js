@@ -208,9 +208,10 @@
     // 盤面幾何(棋盤置中偏左,右側留給方舟)
     _geo() {
       const n = this.cfg.size
-      const D = Math.min(430 / n, 60)
+      const avail = VH - 60 // 放大(長輩友善):上12+下48(HUD)留白後可用高;高度為限
+      const D = Math.min(avail / n, 62)
       const bw = D * n
-      return { n, D, x0: VW * 0.37 - bw / 2, y0: (VH - bw) / 2 + 12 }
+      return { n, D, x0: VW * 0.37 - bw / 2, y0: 12 + (avail - bw) / 2 } // 置中於 HUD 上方,不再壓到 HUD
     }
     _cellXY(r, c, g) { return { x: g.x0 + c * g.D + g.D / 2, y: g.y0 + r * g.D + g.D / 2 } }
 
@@ -771,7 +772,7 @@
           ctx.strokeStyle = '#f0b030'; ctx.lineWidth = 3
           rR(ctx, g.x0 + c * g.D + 3, g.y0 + r * g.D + 3, g.D - 6, g.D - 6, 12); ctx.stroke()
         }
-        this._tsum(ctx, p.x + dx, p.y + cell.dy, g.D * 0.4, cell.kind, cell.sq, selHere)
+        this._tsum(ctx, p.x + dx, p.y + cell.dy, g.D * 0.46, cell.kind, cell.sq, selHere)
       }
       // 🐑 枝子搭排:pending 的每條排,剝皮的枝子(棕桿白紋)搭在頭尾之間+格子亮——斜排孩子才看得出是一排
       if (this.pending) {
